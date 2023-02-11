@@ -28,9 +28,6 @@ public class AuthController : ControllerBase
         _configuration = configuration;
     }
 
-    //Register
-    //RequestPasswordReset
-    //ResetPassword
 
     [HttpPost("register")]
     public async Task<IActionResult> Register([FromBody] RegisterUserRequest request)
@@ -68,14 +65,14 @@ public class AuthController : ControllerBase
         return Ok(_tokenGenerator.Generate(user.Id.ToString()));
     }
 
-    [HttpPost("ResetPassword")]
+    [HttpPost("reset-password")]
     public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordRequest request)
     {
         var user = await _userManager.FindByIdAsync(request.UserID.ToString());
         if (user == null) return NotFound("User not found");
         var resetResult = await _userManager.ResetPasswordAsync(user, request.PasswordResetToken, request.Password);
 
-
+        // TODO: Return result
         if (!resetResult.Succeeded)
         {
             var firstError = resetResult.Errors.First();
@@ -86,19 +83,22 @@ public class AuthController : ControllerBase
     }
 
 
-    [HttpPost("request-password-request")]
+    [HttpPost("request-password-reset")]
     public async Task<IActionResult> RequestPasswordReset([FromBody] GeneratePasswordResetRequest request)
     {
+        // 0. Find user
         var user = await _userManager.FindByEmailAsync(request.Email);
-        if (user == null)
-            // User not found
-            return StatusCode(404, "User not found");
+        if (user == null) return NotFound("User not found");
 
+        // 1. Generate password reset token
         var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+
+        // 2. Insert email into SendEmailRequest table
         var sendEmailRequestEntity = new SendEmailRequestEntity();
         sendEmailRequestEntity.ToAddress = request.Email;
         sendEmailRequestEntity.Status = SendEmailRequestStatus.New;
         sendEmailRequestEntity.CreatedAt = DateTime.Now;
+
         var url = _configuration["PasswordResetUrl"]!
             .Replace("{userId}", user.Id.ToString())
             .Replace("{token}", token);

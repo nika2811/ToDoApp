@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using ToDoApp.Db.Entities;
+using ToDoApp.Db.Mapping;
 
 namespace ToDoApp.DB;
 
@@ -15,6 +16,8 @@ public class AppDbContext : IdentityDbContext<UserEntity, RoleEntity, int>
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
+        builder.ApplyConfiguration(new TodoMap());
+
         base.OnModelCreating(builder);
 
         //builder.Entity<UserEntity>().ToTable("Users");

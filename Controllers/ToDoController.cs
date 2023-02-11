@@ -9,12 +9,12 @@ namespace ToDoApp.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class ToDoController : ControllerBase
+public class TodoController : ControllerBase
 {
     private readonly IToDoCreateRepository _todoRepository;
     private readonly UserManager<UserEntity> _userManager;
 
-    public ToDoController(
+    public TodoController(
         UserManager<UserEntity> userManager,
         IToDoCreateRepository todoRepository)
     {
@@ -26,7 +26,7 @@ public class ToDoController : ControllerBase
     [HttpPost("create")]
     public async Task<IActionResult> Create([FromBody] ToDoCreateRequest request)
     {
-        var user = await _userManager.GetUserAsync(User);
+        var user = _userManager.GetUserAsync(User);
 
         if (user == null) return NotFound("User not found");
 
@@ -35,8 +35,4 @@ public class ToDoController : ControllerBase
         await _todoRepository.SaveChangesAsync();
         return Ok();
     }
-
-    // list/search - Get user todo list / Search
-    // update - update todo title, description and deadline
-    // change-status - Change todo status
 }

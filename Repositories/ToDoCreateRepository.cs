@@ -1,5 +1,6 @@
 ﻿using ToDoApp.DB;
 using ToDoApp.Db.Entities;
+using ToDoApp.Models.Requests;
 
 namespace ToDoApp.Repositories;
 
@@ -7,6 +8,7 @@ public interface IToDoCreateRepository
 {
     Task InsertAsync(int userId, string title, string description, DateTime deadline);
     Task SaveChangesAsync();
+    List<TodoEntity> Search(SearchRequest request);
 }
 
 public class ToDoCreateRepository : IToDoCreateRepository
@@ -40,13 +42,13 @@ public class ToDoCreateRepository : IToDoCreateRepository
         await _db.SaveChangesAsync();
     }
 
-    public List<TodoEntity> Search(string filter, int pageSize, int pageIndex)
+    public List<TodoEntity> Search(SearchRequest request)
     {
         var entities = _db.Todos
             .Where(t => t.UserId == 1)
-            .Where(t => t.Title.Contains(filter))
-            .Skip(pageIndex * pageSize)
-            .Take(pageSize)
+            .Where(t => t.Title.Contains(request.Filter))
+            .Skip(request.PageIndex * request.PageSize)
+            .Take(request.PageSize)
             .OrderBy(t => t.Deadline)
             .ToList();
 
