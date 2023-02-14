@@ -35,4 +35,41 @@ public class TodoController : ControllerBase
         await _todoRepository.SaveChangesAsync();
         return Ok();
     }
+
+    [Authorize("ApiUser", AuthenticationSchemes = "Bearer")]
+    [HttpGet("Read-All-To-Dos")]
+    public List<TodoEntity> GetAllToDos()
+    {
+        var user = _userManager.GetUserAsync(User);
+
+        if (user == null) return null;
+
+        return _todoRepository.Read();
+    }
+
+    [Authorize("ApiUser", AuthenticationSchemes = "Bearer")]
+    [HttpPost("Update-To-Do")]
+    public async Task<IActionResult> UpdateToDo(UpdateToDoRequest request)
+    {
+        var user = await _userManager.GetUserAsync(User);
+
+        if (user == null) return null;
+
+        await _todoRepository.UpdateToDoAsync(request);
+        await _todoRepository.SaveChangesAsync();
+        return Ok();
+    }
+
+    [Authorize("ApiUser", AuthenticationSchemes = "Bearer")]
+    [HttpPost("UpdateToDoStatus")]
+    public async Task<IActionResult> ChangeToDoStatus(ChangeToDoStatusRequest request)
+    {
+        var user = _userManager.GetUserAsync(User);
+
+        if (user == null) return null;
+
+        await _todoRepository.ChangeStatus(request);
+        await _todoRepository.SaveChangesAsync();
+        return Ok();
+    }
 }
