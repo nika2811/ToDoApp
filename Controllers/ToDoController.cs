@@ -38,13 +38,13 @@ public class TodoController : ControllerBase
 
     [Authorize("ApiUser", AuthenticationSchemes = "Bearer")]
     [HttpGet("Read-All-To-Dos")]
-    public List<TodoEntity> GetAllToDos()
+    public async Task<List<TodoEntity>> GetAllToDos()
     {
-        var user = _userManager.GetUserAsync(User);
+        var user = await _userManager.GetUserAsync(User);
 
         if (user == null) return null;
 
-        return _todoRepository.Read();
+        return await _todoRepository.Read();
     }
 
     [Authorize("ApiUser", AuthenticationSchemes = "Bearer")]

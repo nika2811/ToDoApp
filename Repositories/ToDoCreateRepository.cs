@@ -1,6 +1,7 @@
 ﻿using ToDoApp.DB;
 using ToDoApp.Db.Entities;
 using ToDoApp.Models.Requests;
+using Microsoft.EntityFrameworkCore;
 
 namespace ToDoApp.Repositories;
 
@@ -9,7 +10,7 @@ public interface IToDoCreateRepository
     Task InsertAsync(int userId, string title, string description, DateTime deadline);
     Task SaveChangesAsync();
     List<TodoEntity> Search(SearchRequest request);
-    List<TodoEntity> Read();
+    Task<List<TodoEntity>> Read();
     Task UpdateToDoAsync(UpdateToDoRequest request);
     Task ChangeStatus(ChangeToDoStatusRequest request);
 }
@@ -45,9 +46,9 @@ public class ToDoCreateRepository : IToDoCreateRepository
         await _db.SaveChangesAsync();
     }
 
-    public List<TodoEntity> Read()
+    public async Task<List<TodoEntity>> Read()
     {
-        var data = _db.Todos.OrderBy(x => x.Deadline).ToList();
+        var data = await _db.Todos.OrderBy(x => x.Deadline).ToListAsync();
         return data;
     }
 
